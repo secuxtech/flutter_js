@@ -69,6 +69,7 @@ abstract class JavascriptRuntime {
     initChannelFunctions();
     _setupConsoleLog();
     _setupSetTimeout();
+    _setupBigInt();
     return this;
   }
 
@@ -176,6 +177,21 @@ abstract class JavascriptRuntime {
 
   onMessage(String channelName, dynamic Function(dynamic args) fn) {
     setupBridge(channelName, fn);
+  }
+
+  void _setupBigInt() {
+    try {
+      evaluate("""
+        if (typeof globalThis !== 'undefined' && typeof globalThis.BigInt === 'undefined') {
+          globalThis.BigInt = BigInt;
+        }
+      """);
+    } catch (e) {
+      // BigInt may not be available in all environments
+      if (JavascriptRuntime.debugEnabled) {
+        print('BigInt setup skipped: $e');
+      }
+    }
   }
 
   bool setupBridge(String channelName, void Function(dynamic args) fn);
