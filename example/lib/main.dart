@@ -75,6 +75,38 @@ class _FlutterJsHomeScreenState extends State<FlutterJsHomeScreen> {
     );
     javascriptRuntime.executePendingJob();
     JsEvalResult asyncResult = await javascriptRuntime.handlePromise(jsResult);
+
+    final testBigInt = javascriptRuntime.evaluate("""
+(function() {
+  var report = {};
+
+  // 1. 測試環境建構子 (Constructor)
+  report.hasConstructor = (typeof BigInt === 'function');
+
+  // 2. 測試原生語法 (Literal Syntax 100n)
+  try {
+    var n = eval('100n'); 
+    report.hasLiteralSyntax = true;
+    report.literalType = typeof n;
+  } catch (e) {
+    report.hasLiteralSyntax = false;
+    report.literalError = e.message;
+  }
+
+  // 3. 測試橋樑傳輸 (Bridge Transport)
+  try {
+    if (report.hasConstructor) {
+      report.testValue = BigInt("9007199254740993"); // 超過 Number.MAX_SAFE_INTEGER
+    }
+  } catch (e) {
+    report.bridgeError = e.message;
+  }
+
+  return JSON.stringify(report);
+})();
+""");
+    print('BigInt Test: ${testBigInt.stringResult}');
+
     return asyncResult.stringResult;
   }
 

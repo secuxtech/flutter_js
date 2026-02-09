@@ -93,6 +93,14 @@ Pointer<JSValue> _dartToJs(Pointer<JSContext> ctx, dynamic val,
   if (cache == null) cache = Map();
   if (val is bool) return jsNewBool(ctx, val ? 1 : 0);
   if (val is int) return jsNewInt64(ctx, val);
+  if (val is BigInt) {
+    return jsEval(
+      ctx,
+      "BigInt('${val.toString()}')",
+      '<eval>',
+      JSEvalFlag.GLOBAL,
+    );
+  }
   if (val is double) return jsNewFloat64(ctx, val);
   if (val is String) return jsNewString(ctx, val);
   if (val is Uint8List) {
@@ -152,6 +160,9 @@ dynamic _jsToDart(Pointer<JSContext> ctx, Pointer<JSValue> val,
       return jsToBool(ctx, val) != 0;
     case JSTag.INT:
       return jsToInt64(ctx, val);
+    case JSTag.BIG_INT:
+      final valStr = jsToCString(ctx, val);
+      return BigInt.parse(valStr);
     case JSTag.STRING:
       return jsToCString(ctx, val);
     case JSTag.OBJECT:

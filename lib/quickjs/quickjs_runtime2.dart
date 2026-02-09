@@ -131,6 +131,16 @@ class QuickJsRuntime2 extends JavascriptRuntime {
     if (memoryLimit > 0) jsSetMemoryLimit(rt, memoryLimit);
     _rt = rt;
     _ctx = jsNewContext(rt);
+    try {
+      jsAddIntrinsicBigInt(_ctx!);
+    } catch (e) {
+      // print('Failed to add intrinsic BigInt: $e');
+    }
+    evaluate("""
+      if (typeof BigInt !== 'undefined' && !BigInt.prototype.toJSON) {
+        BigInt.prototype.toJSON = function() { return this.toString(); };
+      }
+    """);
   }
 
   /// Free Runtime and Context which can be recreate when evaluate again.

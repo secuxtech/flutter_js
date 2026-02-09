@@ -148,6 +148,17 @@ final Pointer<JSValue> Function() jsEXCEPTION = _qjsLib
     .lookup<NativeFunction<Pointer<JSValue> Function()>>('jsEXCEPTION')
     .asFunction();
 
+/// void jsAddIntrinsicBigInt(JSContext *ctx)
+final void Function(
+  Pointer<JSContext> ctx,
+) jsAddIntrinsicBigInt = _qjsLib
+    .lookup<
+        NativeFunction<
+            Void Function(
+              Pointer<JSContext>,
+            )>>('jsAddIntrinsicBigInt')
+    .asFunction();
+
 /// JSValue *jsUNDEFINED()
 final Pointer<JSValue> Function() jsUNDEFINED = _qjsLib
     .lookup<NativeFunction<Pointer<JSValue> Function()>>('jsUNDEFINED')
