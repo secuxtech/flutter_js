@@ -14,7 +14,7 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
     final fetchPolyfill =
         await rootBundle.loadString('packages/flutter_js/assets/js/fetch.js');
     debug('Loaded fetchPolyfill');
-    final evalFetchResult = evaluate(fetchPolyfill);
+    final evalFetchResult = await evaluateAsync(fetchPolyfill);
     debug('Eval Fetch Result: $evalFetchResult');
     return this;
   }

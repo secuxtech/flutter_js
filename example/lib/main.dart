@@ -75,6 +75,28 @@ class _FlutterJsHomeScreenState extends State<FlutterJsHomeScreen> {
     );
     javascriptRuntime.executePendingJob();
     JsEvalResult asyncResult = await javascriptRuntime.handlePromise(jsResult);
+
+    final testBigInt = javascriptRuntime.evaluate('''
+  try {
+    var resultStr = '';
+    if (typeof BigInt === 'undefined') {
+      resultStr = 'BigInt is undefined';
+    } else {
+      resultStr = 'BigInt exists. ';
+      try {
+        const val = BigInt(123);
+        resultStr += 'Constructor works: ' + val.toString();
+      } catch (e) {
+        resultStr += 'Constructor failed: ' + e.message;
+      }
+    }
+    resultStr;
+  } catch(e) {
+    'Error: ' + e.message;
+  }
+''');
+    print('BigInt Test: ${testBigInt.stringResult}');
+
     return asyncResult.stringResult;
   }
 

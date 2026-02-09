@@ -10,7 +10,7 @@ import './extensions/handle_promises.dart';
 import './quickjs/quickjs_runtime2.dart';
 
 export './extensions/handle_promises.dart';
-//import 'package:flutter_js/quickjs-sync-server/quickjs_oasis_jsbridge.dart';
+import 'package:flutter_js/quickjs-sync-server/quickjs_oasis_jsbridge.dart';
 //import 'package:flutter_js/quickjs/quickjs_runtime.dart';
 
 export './quickjs/quickjs_runtime.dart';
@@ -31,10 +31,10 @@ JavascriptRuntime getJavascriptRuntime({
 }) {
   JavascriptRuntime runtime;
   if ((Platform.isAndroid && !forceJavascriptCoreOnAndroid)) {
-    int stackSize = extraArgs?['stackSize'] ?? 1024 * 1024;
-    runtime = QuickJsRuntime2(stackSize: stackSize);
-    // FlutterJs engine = FlutterJs();
-    // runtime = QuickJsService(engine);
+    // int stackSize = extraArgs?['stackSize'] ?? 1024 * 1024;
+    // runtime = QuickJsRuntime2(stackSize: stackSize);
+    FlutterJs engine = FlutterJs();
+    runtime = QuickJsService(engine);
   } else if (Platform.isWindows) {
     runtime = QuickJsRuntime2();
   } else if (Platform.isLinux) {
@@ -148,8 +148,8 @@ class FlutterJs {
   }
 
   static Future<int?> initEngine(int? engineId) async {
-    Map<dynamic, dynamic> mapResult = await (_methodChannel.invokeMethod(
-        "initEngine", engineId) as Future<Map<dynamic, dynamic>>);
+    Map<dynamic, dynamic> mapResult = (await _methodChannel.invokeMethod(
+        "initEngine", engineId)) as Map<dynamic, dynamic>;
     _httpPort = mapResult['httpPort'] as int?;
     _httpPassword = mapResult['httpPassword'] as String?;
     return engineId;

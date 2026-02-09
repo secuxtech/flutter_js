@@ -23,6 +23,10 @@ if (flutterVersionName == null) {
 }
 
 android {
+    packagingOptions {
+        pickFirst 'lib/**/libc++_shared.so'
+    }
+
     namespace "io.abner.flutter_js_example"
     compileSdkVersion flutter.compileSdkVersion
     
@@ -50,7 +54,7 @@ android {
          applicationId "io.abner.flutter_js_example"
 
         //minSdkVersion flutter.minSdkVersion
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -95,5 +99,5 @@ flutter {
 
 dependencies {
     // implementation "com.github.fast-development.android-js-runtimes:fastdev-jsruntimes-jsc-intl:0.3.5"
-    implementation "com.github.fast-development.android-js-runtimes:fastdev-jsruntimes-jsc:0.3.5"
+    // implementation "com.github.fast-development.android-js-runtimes:fastdev-jsruntimes-jsc:0.3.5"
 }

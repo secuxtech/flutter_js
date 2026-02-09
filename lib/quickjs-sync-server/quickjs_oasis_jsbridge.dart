@@ -58,6 +58,10 @@ class QuickJsService extends JavascriptRuntime {
   }
 
   JsEvalResult evaluate(String code, {String? sourceUrl}) {
+    if (FlutterJs.httpPort == null) {
+      print("ERROR: FlutterJs.httpPort is null. Engine not initialized.");
+      return JsEvalResult("ERROR: Engine not initialized", null, isError: true);
+    }
     var request = SyncHttpClient.postUrl(new Uri.http(
       "localhost:${FlutterJs.httpPort}",
       "",
@@ -139,7 +143,12 @@ class QuickJsService extends JavascriptRuntime {
     // channelFunctionCallbacks[channelName] = fn;
     _flutterJs.addChannel(channelName, (args) {
       final mapArgs = json.decode(args!);
-      final res = fn(mapArgs);
+      var message = mapArgs['message'];
+      try {
+        if (message is String) message = json.decode(message);
+      } catch (e) {}
+
+      final res = fn(message);
       this.evaluate("""
          FLUTTERJS_pendingMessages['${mapArgs['id']}'].resolve(${json.encode(res)});
       """

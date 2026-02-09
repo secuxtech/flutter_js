@@ -5,9 +5,15 @@ import 'package:flutter_js/js_eval_result.dart';
 
 const REGISTER_PROMISE_FUNCTION = 'FLUTTER_NATIVEJS_REGISTER_PROMISE';
 
+final Map<String, Future<void>> _initFutures = {};
+
 extension HandlePromises on JavascriptRuntime {
-  enableHandlePromises() {
-    final fnRegisterPromise = evaluate(""" 
+  void enableHandlePromises() {
+    _initFutures[getEngineInstanceId()] = _enableHandlePromisesBody();
+  }
+
+  Future<void> _enableHandlePromisesBody() async {
+    final fnRegisterPromise = await evaluateAsync(""" 
      var FLUTTER_NATIVEJS_PENDING_PROMISES = {};
       var FLUTTER_NATIVEJS_PENDING_PROMISES_COUNT = -1;
 
@@ -18,7 +24,7 @@ extension HandlePromises on JavascriptRuntime {
         return idx;
       }
     """);
-    final fnMakeQPResult = evaluate("""
+    final fnMakeQPResult = await evaluateAsync("""
       function FLUTTER_NATIVEJS_CLEAN_PROMISE(idx) {
         delete FLUTTER_NATIVEJS_PENDING_PROMISES[idx];
       }
@@ -103,6 +109,9 @@ extension HandlePromises on JavascriptRuntime {
 
   Future<JsEvalResult> _doHandlePromise(
       JsEvalResult value, Completer completer) async {
+    if (_initFutures.containsKey(getEngineInstanceId())) {
+        await _initFutures[getEngineInstanceId()];
+    }
     if (value.stringResult.contains('Instance of \'Future')) {
       var completed = false;
       Function? fnEvaluatePromise;

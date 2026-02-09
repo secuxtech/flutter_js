@@ -152,6 +152,9 @@ dynamic _jsToDart(Pointer<JSContext> ctx, Pointer<JSValue> val,
       return jsToBool(ctx, val) != 0;
     case JSTag.INT:
       return jsToInt64(ctx, val);
+    case JSTag.BIG_INT:
+      final valStr = jsToCString(ctx, val);
+      return BigInt.parse(valStr);
     case JSTag.STRING:
       return jsToCString(ctx, val);
     case JSTag.OBJECT:
