@@ -103,7 +103,7 @@ extension HandlePromises on JavascriptRuntime {
 
   Future<JsEvalResult> _doHandlePromise(
       JsEvalResult value, Completer completer) async {
-    if (value.stringResult.contains('Instance of \'Future')) {
+    if (value.rawResult is Future) {
       var completed = false;
       Function? fnEvaluatePromise;
       fnEvaluatePromise = () async {
@@ -123,12 +123,16 @@ extension HandlePromises on JavascriptRuntime {
       // Future.delayed(Duration(seconds: 1), () {
       //   this.executePendingJob();
       // });
-      return await (value.rawResult as Future<dynamic>).then((dynamic res) {
-        final resEval = JsEvalResult("$res", value.rawResult);
-        completer.complete(resEval);
+      try {
+        return await (value.rawResult as Future<dynamic>).then((dynamic res) {
+          final resEval = JsEvalResult("$res", value.rawResult);
+          completer.complete(resEval);
+          return resEval;
+        });
+      } finally {
+        // Stop dispatching pending jobs on both fulfillment and rejection.
         completed = true;
-        return resEval;
-      });
+      }
     }
     if (value.stringResult != '[object Promise]') return Future.value(value);
 

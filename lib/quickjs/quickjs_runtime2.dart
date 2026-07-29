@@ -140,6 +140,32 @@ class QuickJsRuntime2 extends JavascriptRuntime {
       if (typeof BigInt !== 'undefined' && !BigInt.prototype.toJSON) {
         BigInt.prototype.toJSON = function() { return this.toString(); };
       }
+      if (typeof Object.hasOwn !== 'function') {
+        Object.defineProperty(Object, 'hasOwn', {
+          configurable: true,
+          writable: true,
+          value: function(object, property) {
+            if (object === null || object === undefined) {
+              throw new TypeError('Cannot convert undefined or null to object');
+            }
+            return Object.prototype.hasOwnProperty.call(object, property);
+          }
+        });
+      }
+      if (typeof Array.prototype.at !== 'function') {
+        Object.defineProperty(Array.prototype, 'at', {
+          configurable: true,
+          writable: true,
+          value: function(index) {
+            var length = this.length >>> 0;
+            var integer = Math.trunc(Number(index)) || 0;
+            var position = integer < 0 ? length + integer : integer;
+            return position < 0 || position >= length
+              ? undefined
+              : this[position];
+          }
+        });
+      }
     """);
   }
 
@@ -210,7 +236,11 @@ class QuickJsRuntime2 extends JavascriptRuntime {
     }
     final result = _jsToDart(ctx, jsval);
     jsFreeValue(ctx, jsval);
-    return JsEvalResult(result?.toString() ?? "null", result);
+    return JsEvalResult(
+      result?.toString() ?? "null",
+      result,
+      isPromise: result is Future,
+    );
   }
 
   @override
